@@ -7,7 +7,15 @@ namespace LuaInterface
 {
     class Clua
     {
-
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate int LuaCSFunction(IntPtr luaState);
+        //[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        //public delegate void LuaHookFunc(IntPtr L, ref Lua_Debug ar);
+#else
+    public delegate int LuaCSFunction(IntPtr luaState);    
+    //public delegate void LuaHookFunc(IntPtr L, ref Lua_Debug ar);    
+#endif
         #region c++打印
         public delegate void LogDelegate(IntPtr message, uint iSize);
 
@@ -77,5 +85,51 @@ namespace LuaInterface
         {
             clua_luaCall(L, func);
         }
+
+        [DllImport("Clua", CallingConvention = CallingConvention.Cdecl)]
+        private static extern int clua_gettop(IntPtr L);
+        public static int lua_gettop(IntPtr L)
+        {
+            return clua_gettop(L);
+        }
+        [DllImport("Clua", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void clua_luaopen_base(IntPtr L);
+        public static void luaopen_base(IntPtr L)
+        {
+            clua_luaopen_base(L);
+        }
+        [DllImport("Clua", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void clua_luaL_requiref(IntPtr L,string modename,IntPtr openf,int glb);
+        public static void luaL_requiref(IntPtr L, string modename, LuaCSFunction openf, int glb)
+        {
+            IntPtr fn = Marshal.GetFunctionPointerForDelegate(openf);
+            clua_luaL_requiref(L,modename,fn,glb);
+        }
+        [DllImport("Clua", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void clua_luaL_newmetatable(IntPtr L, string tname);
+        public static void luaL_newmetatable(IntPtr L,string tname)
+        {
+            clua_luaL_newmetatable(L, tname);
+        }
+        [DllImport("Clua", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void clua_lua_pushvalue(IntPtr L, int idx);
+        public static void lua_pushvalue(IntPtr L, int idx)
+        {
+            clua_lua_pushvalue(L, idx);
+        }
+        [DllImport("Clua", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void clua_lua_pushcfunction(IntPtr L, IntPtr f);
+        public static void lua_pushcsfunction(IntPtr L, LuaCSFunction f)
+        {
+            IntPtr fn = Marshal.GetFunctionPointerForDelegate(f);
+            clua_lua_pushcfunction(L, fn);
+        }
+        [DllImport("Clua", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void clua_lua_setglobal(IntPtr L, string name);
+        public static void lua_setglobal(IntPtr L, string name)
+        {
+            clua_lua_setglobal(L, name);
+        }
+        //clua_lua_setglobal
     }
 }
