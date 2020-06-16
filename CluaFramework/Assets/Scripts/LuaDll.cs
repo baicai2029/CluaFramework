@@ -1,21 +1,23 @@
 ﻿using AOT;
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
 namespace LuaInterface
 {
-    class Clua
-    {
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate int LuaCSFunction(IntPtr luaState);
-        //[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        //public delegate void LuaHookFunc(IntPtr L, ref Lua_Debug ar);
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate int LuaCSFunction(IntPtr luaState);
+    //[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    //public delegate void LuaHookFunc(IntPtr L, ref Lua_Debug ar);
 #else
     public delegate int LuaCSFunction(IntPtr luaState);    
     //public delegate void LuaHookFunc(IntPtr L, ref Lua_Debug ar);    
 #endif
+    class Clua
+    {
+
         #region c++打印
         public delegate void LogDelegate(IntPtr message, uint iSize);
 
@@ -49,7 +51,7 @@ namespace LuaInterface
         private static extern void clua_lua_Loger(IntPtr L);
 
         [DllImport("Clua", CallingConvention = CallingConvention.Cdecl)]
-        private static extern double clua_CallLuaFunc(IntPtr L,string func, double x, double y);
+        private static extern double clua_CallLuaFunc(IntPtr L, string func, double x, double y);
 
         public static double CallLuaFunc(IntPtr L, string func, double x, double y)
         {
@@ -99,15 +101,15 @@ namespace LuaInterface
             clua_luaopen_base(L);
         }
         [DllImport("Clua", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void clua_luaL_requiref(IntPtr L,string modename,IntPtr openf,int glb);
+        private static extern void clua_luaL_requiref(IntPtr L, string modename, IntPtr openf, int glb);
         public static void luaL_requiref(IntPtr L, string modename, LuaCSFunction openf, int glb)
         {
             IntPtr fn = Marshal.GetFunctionPointerForDelegate(openf);
-            clua_luaL_requiref(L,modename,fn,glb);
+            clua_luaL_requiref(L, modename, fn, glb);
         }
         [DllImport("Clua", CallingConvention = CallingConvention.Cdecl)]
         private static extern void clua_luaL_newmetatable(IntPtr L, string tname);
-        public static void luaL_newmetatable(IntPtr L,string tname)
+        public static void luaL_newmetatable(IntPtr L, string tname)
         {
             clua_luaL_newmetatable(L, tname);
         }
@@ -130,6 +132,14 @@ namespace LuaInterface
         {
             clua_lua_setglobal(L, name);
         }
-        //clua_lua_setglobal
+        [DllImport("Clua", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void clua_lua_setfield(IntPtr L, int idx, string key);
+        public static void lua_setfield(IntPtr L, int idx, string key)
+        {
+            clua_lua_setfield(L, idx, key);
+        }
+
+       
+        
     }
 }

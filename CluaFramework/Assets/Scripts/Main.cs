@@ -22,8 +22,9 @@ public class Main : MonoBehaviour
         Clua.luaCall(L, "Start");
         Debug.Log("-------------"+xx);
         Debug.Log("-------------");
+        
     }
-
+   
     // Update is called once per frame
     void Update()
     {
