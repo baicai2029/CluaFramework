@@ -113,6 +113,21 @@ namespace LuaInterface
         {
             clua_luaL_newmetatable(L, tname);
         }
+        //clua_lua_pushstring
+        [DllImport("Clua", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void clua_lua_pushstring(IntPtr L, string str);
+        public static void lua_pushstring(IntPtr L, string str)
+        {
+            clua_lua_pushstring(L, str);
+        }
+
+        [DllImport("Clua", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void clua_lua_pushnumber(IntPtr L, double n);
+        public static void lua_pushnumber(IntPtr L, double n)
+        {
+            clua_lua_pushnumber(L, n);
+        }
+
         [DllImport("Clua", CallingConvention = CallingConvention.Cdecl)]
         private static extern void clua_lua_pushvalue(IntPtr L, int idx);
         public static void lua_pushvalue(IntPtr L, int idx)
@@ -123,9 +138,42 @@ namespace LuaInterface
         private static extern void clua_lua_pushcfunction(IntPtr L, IntPtr f);
         public static void lua_pushcsfunction(IntPtr L, LuaCSFunction f)
         {
+            //LuaCSFunction csf_delegate = new LuaCSFunction(f);
             IntPtr fn = Marshal.GetFunctionPointerForDelegate(f);
             clua_lua_pushcfunction(L, fn);
         }
+
+        //clua_lua_tostring
+        [DllImport("Clua", CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr clua_lua_tostring(IntPtr L, int idx);
+        public static string lua_tostring(IntPtr L, int idx)
+        {
+            IntPtr str = clua_lua_tostring(L, idx);
+            if (str != IntPtr.Zero)
+            {
+                return Marshal.PtrToStringAnsi(str);
+            }
+            return null;
+        }
+
+        [DllImport("Clua", CallingConvention = CallingConvention.Cdecl)]
+        private static extern double clua_lua_tonumber(IntPtr L, int idx);
+        public static double lua_tonumber(IntPtr L, int idx)
+        {
+            return clua_lua_tonumber(L, idx);
+        }
+
+        //clua_lua_pushlightuserdata
+        [DllImport("Clua", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void clua_lua_pushlightuserdata(IntPtr L, IntPtr userdata);
+        public static void lua_pushlightuserdata(IntPtr L, object o)  
+        {
+            int lenght = Marshal.SizeOf(o);
+            IntPtr pA = Marshal.AllocHGlobal(lenght);
+            Marshal.StructureToPtr(o, pA, false);
+            clua_lua_pushlightuserdata(L, pA);
+        }
+
         [DllImport("Clua", CallingConvention = CallingConvention.Cdecl)]
         private static extern void clua_lua_setglobal(IntPtr L, string name);
         public static void lua_setglobal(IntPtr L, string name)
@@ -138,8 +186,44 @@ namespace LuaInterface
         {
             clua_lua_setfield(L, idx, key);
         }
+        [DllImport("Clua", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void clua_lua_rawset(IntPtr L, int idx);
+        public static void lua_rawset(IntPtr L, int idx)
+        {
+            clua_lua_rawset(L, idx);
+        }
+        [DllImport("Clua", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void clua_lua_newtable(IntPtr L);
+        public static void lua_newtable(IntPtr L)
+        {
+            clua_lua_newtable(L);
+        }
+        [DllImport("Clua", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void clua_lua_getglobal(IntPtr L,string name);
+        public static void lua_getglobal(IntPtr L,string name)
+        {
+            clua_lua_getglobal(L,name);
+        }
 
-       
+        //clua_lua_setmetatable
+        [DllImport("Clua", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void clua_lua_setmetatable(IntPtr L, int objidx);
+        public static void lua_setmetatable(IntPtr L, int objidx)
+        {
+            clua_lua_setmetatable(L, objidx);
+        }
+
+        [DllImport("Clua", CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr clua_lua_newuserdata(IntPtr L, uint sz);
         
+        public static void lua_newuserdata(IntPtr L, object o)
+        {
+            //int lenght = Marshal.SizeOf(o);
+            //IntPtr pA = Marshal.AllocHGlobal(lenght);
+            //Marshal.StructureToPtr(o, pA, false);
+            IntPtr go = clua_lua_newuserdata(L, 1);
+            //go = pA;
+            LuaManager.Instance.luaObjectDic.Add(go.ToInt64(), o);
+        }
     }
 }
