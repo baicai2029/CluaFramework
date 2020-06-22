@@ -12,9 +12,10 @@ public class Main : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        DontDestroyOnLoad(this);
         try
         {
-            main = Application.dataPath + "/Scripts/" + "main.lua";
+            main = Application.dataPath + "/Lua/" + "Main.lua";
             Clua.InitCSharpDelegate(Clua.LogMessageFromCpp); //c++ log委托绑定
             Debug.Log(Clua.myAdd(10, 8));
             L = Clua.luaL_newstate();

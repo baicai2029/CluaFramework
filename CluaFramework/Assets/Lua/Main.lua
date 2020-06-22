@@ -1,9 +1,8 @@
 local GameObject = UnityEngine
 
-Loger("wo shi lua")
-Loger(1000000)
+
 Loger("我是lua")
---Print()
+
 function main(x,y)
 	Loger("it's main")
 	UnityEngine.create("opop") --创建一个空物体
