@@ -166,12 +166,9 @@ namespace LuaInterface
         //clua_lua_pushlightuserdata
         [DllImport("Clua", CallingConvention = CallingConvention.Cdecl)]
         private static extern void clua_lua_pushlightuserdata(IntPtr L, IntPtr userdata);
-        public static void lua_pushlightuserdata(IntPtr L, object o)  
+        public static void lua_pushlightuserdata(IntPtr L, IntPtr data)  
         {
-            int lenght = Marshal.SizeOf(o);
-            IntPtr pA = Marshal.AllocHGlobal(lenght);
-            Marshal.StructureToPtr(o, pA, false);
-            clua_lua_pushlightuserdata(L, pA);
+            clua_lua_pushlightuserdata(L, data);
         }
 
         [DllImport("Clua", CallingConvention = CallingConvention.Cdecl)]
@@ -216,14 +213,15 @@ namespace LuaInterface
         [DllImport("Clua", CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr clua_lua_newuserdata(IntPtr L, uint sz);
         
-        public static void lua_newuserdata(IntPtr L, object o)
+        public static IntPtr lua_newuserdata(IntPtr L, object o)
         {
             //int lenght = Marshal.SizeOf(o);
             //IntPtr pA = Marshal.AllocHGlobal(lenght);
             //Marshal.StructureToPtr(o, pA, false);
-            IntPtr go = clua_lua_newuserdata(L, 1);
-            //go = pA;
-            LuaManager.Instance.luaObjectDic.Add(go.ToInt64(), o);
+            //Debug.LogError("newuserdata " + typeof().Name);
+            return clua_lua_newuserdata(L, 1);
+            //IntPtr go = clua_lua_newuserdata(L, 1);
+            //LuaManager.Instance.luaObjectDic.Add(go.ToInt64(), o);
         }
     }
 }
